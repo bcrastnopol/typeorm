@@ -201,6 +201,21 @@ describe("Connection", () => {
 
     });
 
+    describe("output nothing", function() {
+
+        let connections: Connection[];
+        before(async () => connections = await createTestingConnections({
+            entities: [View]
+        }));
+        after(() => closeTestingConnections(connections));
+
+        it("should return sql log properly", () => Promise.all(connections.map(async connection => {
+            const sql = await connection.driver.createSchemaBuilder().log();
+            console.log(sql);
+        })));
+
+    });
+
     describe("after connection is closed successfully", function() {
 
         // open a close connections
