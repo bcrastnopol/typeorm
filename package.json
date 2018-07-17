@@ -101,7 +101,8 @@
     "test-ci": "gulp ci-tests",
     "test": "tsc && mocha --file ./build/compiled/test/utils/test-setup.js --bail --recursive --timeout 30000  ./build/compiled/test",
     "compile": "tsc",
-    "package": "gulp package"
+    "package": "gulp package",
+    "postinstall": "npm run package"
   },
   "bin": {
     "typeorm": "./cli.js"

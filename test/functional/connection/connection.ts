@@ -11,7 +11,7 @@ import {closeTestingConnections, createTestingConnections, setupSingleTestingCon
 import {Connection} from "../../../src/connection/Connection";
 import {Repository} from "../../../src/repository/Repository";
 import {TreeRepository} from "../../../src/repository/TreeRepository";
-import {getConnectionManager} from "../../../src/index";
+import {getConnectionManager, TableColumn} from "../../../src/index";
 import {NoConnectionForRepositoryError} from "../../../src/error/NoConnectionForRepositoryError";
 import {EntityManager} from "../../../src/entity-manager/EntityManager";
 import {CannotGetEntityManagerNotConnectedError} from "../../../src/error/CannotGetEntityManagerNotConnectedError";
@@ -201,16 +201,22 @@ describe("Connection", () => {
 
     });
 
-    describe("output nothing", function() {
+    describe("log schema changes", function() {
 
         let connections: Connection[];
         before(async () => connections = await createTestingConnections({
-            entities: [View]
+            entities: [Post],
+            dropSchema: false,
+            schema: 'test-schema'
         }));
         after(() => closeTestingConnections(connections));
 
         it("should return sql log properly", () => Promise.all(connections.map(async connection => {
+            await connection.synchronize(true);
+            const queryRunner = connection.createQueryRunner();
+            const table = await queryRunner.getTable("post");
             const sql = await connection.driver.createSchemaBuilder().log();
+            const x = Post;
             console.log(sql);
         })));
 
