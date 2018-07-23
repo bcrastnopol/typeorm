@@ -18,6 +18,7 @@ import {CannotGetEntityManagerNotConnectedError} from "../../../src/error/Cannot
 import {ConnectionOptions} from "../../../src/connection/ConnectionOptions";
 import {PostgresConnectionOptions} from "../../../src/driver/postgres/PostgresConnectionOptions";
 import {PromiseUtils} from "../../../src/util/PromiseUtils";
+import {SchemaEntity} from "./entity/SchemaEntity";
 
 describe("Connection", () => {
     // const resourceDir = __dirname + "/../../../../../test/functional/connection/";
@@ -204,19 +205,23 @@ describe("Connection", () => {
     describe("log schema changes", function() {
 
         let connections: Connection[];
-        before(async () => connections = await createTestingConnections({
-            entities: [Post],
-            dropSchema: false,
-            schema: 'test-schema'
-        }));
+        before(async () => {
+            return connections = await createTestingConnections({
+                entities: [SchemaEntity],
+                dropSchema: false,
+                schema: "test-schema"
+            });
+        });
         after(() => closeTestingConnections(connections));
 
         it("should return sql log properly", () => Promise.all(connections.map(async connection => {
-            await connection.synchronize(true);
             const queryRunner = connection.createQueryRunner();
-            const table = await queryRunner.getTable("post");
+            const table = await queryRunner.getTable("ent");
+            await connection.synchronize(true);
+            console.log(table);
+            const dropped = await queryRunner.dropColumn("ent", "title");
             const sql = await connection.driver.createSchemaBuilder().log();
-            const x = Post;
+
             console.log(sql);
         })));
 
